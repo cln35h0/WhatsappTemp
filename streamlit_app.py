@@ -1,7 +1,7 @@
 import re
 import pandas as pd
 import streamlit as st
-import plotly.graph_objects as go
+import plotly.express as px
 
 st.set_page_config(layout="wide")
 st.title("WhatsApp Chat Analysis Dashboard")
@@ -94,48 +94,28 @@ if uploaded_file:
     st.subheader("Messages per Hour per Participant")
     if not filtered_df.empty:
         hourly_counts = filtered_df.groupby(['HourRound', 'Name']).size().reset_index(name='MessageCount')
-        hourly_pivot = hourly_counts.pivot(index='HourRound', columns='Name', values='MessageCount').fillna(0)
-        
-        fig_hourly = go.Figure()
-        for participant in hourly_pivot.columns:
-            fig_hourly.add_trace(go.Bar(
-                x=hourly_pivot.index,
-                y=hourly_pivot[participant],
-                name=participant,
-                hovertemplate='<b>%{fullData.name}</b><br>Time: %{x}:00-%{x}:59<br>Messages: %{y}<extra></extra>'
-            ))
-        fig_hourly.update_layout(
-            barmode='stack',
-            xaxis_title='Hour of Day',
-            yaxis_title='Number of Messages',
-            title='Messages per Hour per Participant',
-            xaxis=dict(tickmode='linear')
+        fig_hourly = px.bar(
+            hourly_counts,
+            x="HourRound",
+            y="MessageCount",
+            color="Name",
+            barmode="stack",
+            title="Messages per Hour per Participant",
+            labels={"HourRound": "Hour of Day", "MessageCount": "Number of Messages"}
         )
         st.plotly_chart(fig_hourly, use_container_width=True)
 
     # ---------------- Messages per Minute ----------------
     st.subheader("Messages per Minute per Participant")
     if not filtered_df.empty:
-        minute_counts = filtered_df.groupby(['MinuteRound', 'Name']).agg(
-            MessageCount=('Message', 'count'),
-            Messages=('Message', lambda x: '<br>'.join(x.astype(str)))
-        ).reset_index()
-        minute_pivot = minute_counts.pivot(index='MinuteRound', columns='Name', values='MessageCount').fillna(0)
-        
-        fig_minute = go.Figure()
-        for participant in minute_pivot.columns:
-            hover_texts = minute_counts[minute_counts['Name'] == participant].set_index('MinuteRound')['Messages']
-            fig_minute.add_trace(go.Bar(
-                x=minute_pivot.index,
-                y=minute_pivot[participant],
-                name=participant,
-                hovertext=[hover_texts.get(i, "") for i in minute_pivot.index],
-                hoverinfo='text+y'
-            ))
-        fig_minute.update_layout(
-            barmode='stack',
-            xaxis_title='Time (Minute)',
-            yaxis_title='Number of Messages',
-            title='Messages per Minute per Participant'
+        minute_counts = filtered_df.groupby(['MinuteRound', 'Name']).size().reset_index(name='MessageCount')
+        fig_minute = px.bar(
+            minute_counts,
+            x="MinuteRound",
+            y="MessageCount",
+            color="Name",
+            barmode="stack",
+            title="Messages per Minute per Participant",
+            labels={"MinuteRound": "Time (Minute)", "MessageCount": "Number of Messages"}
         )
         st.plotly_chart(fig_minute, use_container_width=True)
