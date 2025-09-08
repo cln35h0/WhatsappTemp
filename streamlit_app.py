@@ -5,9 +5,9 @@ import plotly.express as px
 
 # ---------------- Page Config ----------------
 st.set_page_config(
-    page_title="Election Results Dashboard | Dinesh S. Kumawat | cln35h | 学習者",
+    page_title="WhatsApp Chat Analysis Dashboard | Dinesh S. Kumawat | cln35h | 学習者",
     layout="wide",
-    page_icon="favicon.ico"  # make sure favicon.ico is in the same folder
+    page_icon="favicon.ico" 
 )
 
 st.title("WhatsApp Chat Analysis Dashboard")
@@ -49,7 +49,7 @@ def parse_chat(file):
     """Convert WhatsApp txt export to DataFrame"""
     data = []
     for raw_line in file:
-        line = raw_line.decode("utf-8").strip()  # decode bytes to str
+        line = raw_line.decode("utf-8").strip()
         parsed = parse_line(line)
         if parsed:
             data.append(parsed)
@@ -146,3 +146,4 @@ if uploaded_file:
             labels={"MinuteRound": "Time (Minute)", "MessageCount": "Number of Messages"}
         )
         st.plotly_chart(fig_minute, use_container_width=True)
+
